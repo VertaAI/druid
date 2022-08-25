@@ -13,7 +13,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
-# under the License. 
+# under the License.
 
 name: conjunctive normal form conversion code, a variance aggregator algorithm, and Bloom filter adapted from Apache Hive
 version:
@@ -237,7 +237,7 @@ name: Jackson
 license_category: binary
 module: java-core
 license_name: Apache License version 2.0
-version: 2.12.6
+version: 2.12.7
 libraries:
   - com.fasterxml.jackson.core: jackson-annotations
   - com.fasterxml.jackson.core: jackson-core
@@ -278,7 +278,7 @@ name: Jackson
 license_category: binary
 module: java-core
 license_name: Apache License version 2.0
-version: 2.12.6.1
+version: 2.12.7
 libraries:
   - com.fasterxml.jackson.core: jackson-databind
 notice: |
@@ -3526,7 +3526,7 @@ module: extensions/druid-avro-extensions
 license_name: Eclipse Public License 2.0
 libraries:
   - org.glassfish.hk2: osgi-resource-locator
-  
+
 ---
 
 name: jakarta.inject
@@ -3536,7 +3536,7 @@ module: extensions/druid-avro-extensions
 license_name: Eclipse Public License 2.0
 libraries:
   - org.glassfish.hk2.external: jakarta.inject
-  
+
 ---
 
 name: jakarta.annotation
@@ -3546,7 +3546,7 @@ module: extensions/druid-avro-extensions
 license_name: Eclipse Public License 2.0
 libraries:
   - jakarta.annotation: jakarta.annotation-api
-    
+
 ---
 
 name: javax.ws.rs-api
@@ -3556,7 +3556,7 @@ module: extensions/druid-avro-extensions
 license_name: Eclipse Public License 2.0
 libraries:
   - javax.ws.rs: javax.ws.rs-api
-  
+
 ---
 
 name: jakarta.ws.rs-api
@@ -3566,7 +3566,7 @@ module: extensions/druid-avro-extensions
 license_name: Eclipse Public License 2.0
 libraries:
   - jakarta.ws.rs: jakarta.ws.rs-api
-        
+
 ---
 
 name: Kafka Schema Registry Client 6.0.1
