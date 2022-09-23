@@ -467,7 +467,7 @@
     <cve>CVE-2015-7430</cve>
     <cve>CVE-2017-3162</cve>
   </suppress>
-  
+
   <suppress>
     <!-- Suppress avro cves that are only applicable to .NET SDK-->
     <notes><![CDATA[
@@ -548,6 +548,44 @@
    file name: parquet-format-structures-1.12.0.jar
    ]]></notes>
     <cve>CVE-2021-41561</cve>
+  </suppress>
+
+  <suppress>
+    <!-- Avatica server itself is not affected. Vulnerability exists only on client. -->
+    <notes><![CDATA[
+   file name: avatica-server-1.17.0.jar
+   ]]></notes>
+    <cve>CVE-2022-36364</cve>
+  </suppress>
+
+  <suppress>
+    <!-- False positive. 42.3.3 is not affected by the CVE. And we don't use Resultset.refreshRow method either  -->
+    <notes><![CDATA[
+   file name: postgresql-42.3.3.jar
+   ]]></notes>
+    <cve>CVE-2022-31197</cve>
+  </suppress>
+
+  <suppress>
+    <!-- avatica-server-1.17.0.jar -->
+    <notes><![CDATA[
+   file name: avatica-server-1.17.0.jar
+   ]]></notes>
+    <!--
+    We do not expose any of the SQL operators that were found vulnerable in this CVE.
+    -->
+    <cve>CVE-2022-39135</cve>
+  </suppress>
+
+  <suppress>
+    <!-- calcite-core-1.21.0.jar -->
+    <notes><![CDATA[
+   file name: calcite-core-1.21.0.jar
+   ]]></notes>
+    <!--
+    We do not expose any of the SQL operators that were found vulnerable in this CVE.
+    -->
+    <cve>CVE-2022-39135</cve>
   </suppress>
 
 </suppressions>
