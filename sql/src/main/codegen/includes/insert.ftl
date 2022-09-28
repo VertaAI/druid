@@ -59,12 +59,10 @@ SqlNodeList ClusterItems() :
   SqlNode e;
 }
 {
-  e = OrderItem() {
-    s = span();
-    list = startList(e);
-  }
+  AddOrderItem(list)
+  s = span()
   (
-    LOOKAHEAD(2) <COMMA> e = OrderItem() { list.add(e); }
+    LOOKAHEAD(2) <COMMA> AddOrderItem(list)
   )*
   {
     return new SqlNodeList(list, s.addAll(list).pos());
