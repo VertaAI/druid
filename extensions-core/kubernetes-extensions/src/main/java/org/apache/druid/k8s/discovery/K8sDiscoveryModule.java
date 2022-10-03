@@ -67,13 +67,10 @@ public class K8sDiscoveryModule implements DruidModule
                 try {
                   // Note: we can probably improve things here about figuring out how to find the K8S API server,
                   // HTTP client timeouts etc.
-                  final TimeZone utc = TimeZone.getTimeZone("UTC");
                   final SimpleDateFormat dateFormat = new SimpleDateFormat(
                       "yyyyMMdd'T'HHmmss.SSS'Z'");
-                  dateFormat.setTimeZone(utc);
-                  final ApiClient apiClient = Config.defaultClient();
-                  apiClient.setDateFormat(dateFormat);
-                  return apiClient;
+                  dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                  return Config.defaultClient().setDateFormat(dateFormat);
                 }
                 catch (IOException ex) {
                   throw new RuntimeException("Failed to create K8s ApiClient instance", ex);
