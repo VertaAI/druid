@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 
-# IMPORTANT: See https://github.com/VertaAI/java-services/blob/main/README.md for usage and build instructions
+# IMPORTANT: See [VertaAI/java-services/README.md](https://github.com/VertaAI/java-services/blob/main/README.md) for usage and build instructions
 
 
 [![Slack](https://img.shields.io/badge/slack-%23druid-72eff8?logo=slack)](https://druid.apache.org/community/join-slack)
