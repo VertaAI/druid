@@ -224,7 +224,7 @@
         </repository>
 
         <repository>
-            <id>gitub-verta-druid</id>
+            <id>github-verta-druid</id>
             <url>https://maven.pkg.github.com/VertaAI/druid</url>
             <snapshots>
                 <enabled>true</enabled>
