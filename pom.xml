@@ -84,7 +84,7 @@
     </scm>
 
     <properties>
-        <revision>0.23.103-SNAPSHOT</revision>
+        <revision>0.23.104-SNAPSHOT</revision>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <java.version>8</java.version>
