@@ -189,7 +189,6 @@
                                         <argument>--clean</argument>
                                         <argument>--defaultVersion</argument>
                                         <argument>${project.parent.version}</argument>
-                                        <argument>--no-default-remote-repositories</argument>
                                         <argument>-l</argument>
                                         <argument>${settings.localRepository}</argument>
                                         <argument>-h</argument>
@@ -368,7 +367,6 @@
                                         <argument>--clean</argument>
                                         <argument>--defaultVersion</argument>
                                         <argument>${project.parent.version}</argument>
-                                        <argument>--no-default-remote-repositories</argument>
                                         <argument>-l</argument>
                                         <argument>${settings.localRepository}</argument>
                                         <argument>-h</argument>
@@ -565,7 +563,6 @@
                                         <argument>pull-deps</argument>
                                         <argument>--defaultVersion</argument>
                                         <argument>${project.parent.version}</argument>
-                                        <argument>--no-default-remote-repositories</argument>
                                         <argument>-l</argument>
                                         <argument>${settings.localRepository}</argument>
                                         <argument>--no-default-hadoop</argument>
@@ -661,7 +658,6 @@
                                         <argument>--clean</argument>
                                         <argument>--defaultVersion</argument>
                                         <argument>${project.parent.version}</argument>
-                                        <argument>--no-default-remote-repositories</argument>
                                         <argument>-l</argument>
                                         <argument>${settings.localRepository}</argument>
                                         <argument>-h</argument>
