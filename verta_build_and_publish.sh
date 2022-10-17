@@ -11,6 +11,10 @@ export MAVEN_PARAMS='-Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true 
 mvn -B versions:set -DnewVersion=$PROJECT_VERSION > /dev/null
 mvn -B deploy $MAVEN_PARAMS || {
     mvn -B versions:revert > /dev/null
+    # strange behavior where website needs separate call to revert
+    `cd website && mvn -B versions:revert > /dev/null`
     exit 1
 }
 mvn -B versions:revert > /dev/null
+# strange behavior where website needs separate call to revert
+`cd website && mvn -B versions:revert > /dev/null`
