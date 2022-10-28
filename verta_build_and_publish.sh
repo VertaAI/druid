@@ -18,7 +18,7 @@ fi
 export PROJECT_VERSION=${PROJECT_REVISION/%-SNAPSHOT/-${VERSION_SUFFIX}-SNAPSHOT}
 
 # When building verta main replace -SNAPSHOT with commit info
-if [ "$BRANCH_NAME" == "verta/main" ]; then
+if [ "$BRANCH_NAME" == "ln/deploy-main" ]; then
     COMMIT_INFO="$(TZ=UTC git show -s --format=%cd--%h --date='format-local:%Y-%m-%dT%H-%M-%S' --abbrev=7)"
     export PROJECT_VERSION=${PROJECT_VERSION/%-SNAPSHOT/-$COMMIT_INFO}
 fi
