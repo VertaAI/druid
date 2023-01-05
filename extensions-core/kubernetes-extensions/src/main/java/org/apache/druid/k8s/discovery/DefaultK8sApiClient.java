@@ -125,7 +125,7 @@ public class DefaultK8sApiClient implements K8sApiClient
 
       return new WatchResult()
       {
-        private Watch.Response<DiscoveryDruidNodeAndResourceVersion> obj;
+        private Watch.Response<DiscoveryDruidNodeAndK8sMetadata> obj;
 
         @Override
         public boolean hasNext() throws SocketTimeoutException
@@ -134,10 +134,10 @@ public class DefaultK8sApiClient implements K8sApiClient
             while (watch.hasNext()) {
               Watch.Response<V1Pod> item = watch.next();
               if (item != null && item.type != null) {
-                DiscoveryDruidNodeAndResourceVersion result = null;
+                DiscoveryDruidNodeAndK8sMetadata result = null;
                 if (item.object != null && item.object.getMetadata() != null) {
                   if (item.object.getMetadata().getAnnotations() != null) {
-                    result = new DiscoveryDruidNodeAndResourceVersion(
+                    result = new DiscoveryDruidNodeAndK8sMetadata(
                         item.object.getMetadata().getResourceVersion(),
                         getDiscoveryDruidNodeFromPodDef(nodeRole, item.object),
                         creationTimestamp(item.object),
@@ -153,7 +153,7 @@ public class DefaultK8sApiClient implements K8sApiClient
                   LOGGER.debug("item of type [%s] was NULL or had NULL metadata when watching nodeRole [%s]", item.type, nodeRole);
                 }
 
-                obj = new Watch.Response<DiscoveryDruidNodeAndResourceVersion>(
+                obj = new Watch.Response<DiscoveryDruidNodeAndK8sMetadata>(
                     item.type,
                     result
                 );
@@ -175,7 +175,7 @@ public class DefaultK8sApiClient implements K8sApiClient
         }
 
         @Override
-        public Watch.Response<DiscoveryDruidNodeAndResourceVersion> next()
+        public Watch.Response<DiscoveryDruidNodeAndK8sMetadata> next()
         {
           return obj;
         }

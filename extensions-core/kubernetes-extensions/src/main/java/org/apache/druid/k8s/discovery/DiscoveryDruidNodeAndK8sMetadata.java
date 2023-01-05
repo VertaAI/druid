@@ -22,14 +22,14 @@ package org.apache.druid.k8s.discovery;
 import org.apache.druid.discovery.DiscoveryDruidNode;
 import org.joda.time.DateTime;
 
-public class DiscoveryDruidNodeAndResourceVersion
+public class DiscoveryDruidNodeAndK8sMetadata
 {
   private final String resourceVersion;
   private final DiscoveryDruidNode node;
   private final DateTime creationTimestamp;
   private final DateTime deletionTimestamp;
 
-  public DiscoveryDruidNodeAndResourceVersion(String resourceVersion, DiscoveryDruidNode node, DateTime creationTimestamp, DateTime deletionTimestamp)
+  public DiscoveryDruidNodeAndK8sMetadata(String resourceVersion, DiscoveryDruidNode node, DateTime creationTimestamp, DateTime deletionTimestamp)
   {
     this.resourceVersion = resourceVersion;
     this.node = node;

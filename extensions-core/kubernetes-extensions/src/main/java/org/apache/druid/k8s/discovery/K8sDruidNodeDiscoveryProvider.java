@@ -266,7 +266,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
 
           try {
             while (iter.hasNext()) {
-              Watch.Response<DiscoveryDruidNodeAndResourceVersion> item = iter.next();
+              Watch.Response<DiscoveryDruidNodeAndK8sMetadata> item = iter.next();
               if (item != null && item.type != null && item.object != null) {
                 switch (item.type) {
                   case WatchResult.ADDED:
@@ -276,7 +276,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
                   case WatchResult.MODIFIED:
-                    if (item.object.getCreationTimestamp() != null && item.object.getDeletionTimestamp() != null && item.object.getDeletionTimestamp().isAfter(item.object.getCreationTimestamp())) {
+                    if (isPodDeleted(item)) {
                       LOGGER.info("Pod has been modified and has a deletion timestamp " + item.object.getDeletionTimestamp() + " after the creation timestamp " + item.object.getCreationTimestamp() + ", treating the pod as deleted");
                       baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     }
@@ -374,5 +374,9 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
     {
       baseNodeRoleWatcher.registerListener(listener);
     }
+  }
+
+  private static boolean isPodDeleted(Watch.Response<DiscoveryDruidNodeAndK8sMetadata> item) {
+    return item.object.getCreationTimestamp() != null && item.object.getDeletionTimestamp() != null && item.object.getDeletionTimestamp().isAfter(item.object.getCreationTimestamp());
   }
 }
