@@ -275,6 +275,12 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
                   case WatchResult.DELETED:
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
+                  case WatchResult.MODIFIED:
+                    if (item.object.getCreationTimestamp() != null && item.object.getDeletionTimestamp() != null && item.object.getDeletionTimestamp().isAfter(item.object.getCreationTimestamp())) {
+                      LOGGER.info("Pod has been modified and has a deletion times " + item.object.getDeletionTimestamp() + " after the creation timestamp " + item.object.getCreationTimestamp() + ", treating the pod as deleted");
+                      baseNodeRoleWatcher.childRemoved(item.object.getNode());
+                    }
+                    break;
                   default:
                 }
 

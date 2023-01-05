@@ -27,6 +27,7 @@ public interface WatchResult
 {
   String ADDED = "ADDED";
   String DELETED = "DELETED";
+  String MODIFIED = "MODIFIED";
 
   boolean hasNext() throws SocketTimeoutException;
 

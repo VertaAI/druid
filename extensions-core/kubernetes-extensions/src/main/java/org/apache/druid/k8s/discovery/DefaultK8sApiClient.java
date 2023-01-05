@@ -28,6 +28,7 @@ import io.kubernetes.client.custom.V1Patch;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.util.Watch;
@@ -36,6 +37,7 @@ import org.apache.druid.discovery.NodeRole;
 import org.apache.druid.guice.annotations.Json;
 import org.apache.druid.java.util.common.RE;
 import org.apache.druid.java.util.common.logger.Logger;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -137,8 +139,9 @@ public class DefaultK8sApiClient implements K8sApiClient
                   if (item.object.getMetadata().getAnnotations() != null) {
                     result = new DiscoveryDruidNodeAndResourceVersion(
                         item.object.getMetadata().getResourceVersion(),
-                        getDiscoveryDruidNodeFromPodDef(nodeRole, item.object)
-                    );
+                        getDiscoveryDruidNodeFromPodDef(nodeRole, item.object),
+                        creationTimestamp(item.object),
+                        deletionTimestamp(item.object));
                   } else {
                     LOGGER.debug("item of type [%s] had NULL annotations when watching nodeRole [%s]", item.type, nodeRole);
                   }
@@ -197,5 +200,21 @@ public class DefaultK8sApiClient implements K8sApiClient
 
       throw new RE(ex, "Expection in watching pods, code[%d] and error[%s].", ex.getCode(), ex.getResponseBody());
     }
+  }
+
+  private static DateTime creationTimestamp(V1Pod object) {
+    V1ObjectMeta metadata = object.getMetadata();
+    if (metadata == null) {
+      return null;
+    }
+    return metadata.getCreationTimestamp();
+  }
+
+  private static DateTime deletionTimestamp(V1Pod object) {
+    V1ObjectMeta metadata = object.getMetadata();
+    if (metadata == null) {
+      return null;
+    }
+    return metadata.getDeletionTimestamp();
   }
 }

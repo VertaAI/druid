@@ -20,21 +20,34 @@
 package org.apache.druid.k8s.discovery;
 
 import org.apache.druid.discovery.DiscoveryDruidNode;
+import org.joda.time.DateTime;
 
 public class DiscoveryDruidNodeAndResourceVersion
 {
   private final String resourceVersion;
   private final DiscoveryDruidNode node;
+  private final DateTime creationTimestamp;
+  private final DateTime deletionTimestamp;
 
-  public DiscoveryDruidNodeAndResourceVersion(String resourceVersion, DiscoveryDruidNode node)
+  public DiscoveryDruidNodeAndResourceVersion(String resourceVersion, DiscoveryDruidNode node, DateTime creationTimestamp, DateTime deletionTimestamp)
   {
     this.resourceVersion = resourceVersion;
     this.node = node;
+    this.creationTimestamp = creationTimestamp;
+    this.deletionTimestamp = deletionTimestamp;
   }
 
   public String getResourceVersion()
   {
     return resourceVersion;
+  }
+
+  public DateTime getCreationTimestamp() {
+    return creationTimestamp;
+  }
+
+  public DateTime getDeletionTimestamp() {
+    return deletionTimestamp;
   }
 
   public DiscoveryDruidNode getNode()
