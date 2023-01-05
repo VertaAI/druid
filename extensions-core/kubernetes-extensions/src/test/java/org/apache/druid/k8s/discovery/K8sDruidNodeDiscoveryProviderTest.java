@@ -30,6 +30,7 @@ import org.apache.druid.java.util.common.StringUtils;
 import org.apache.druid.java.util.common.logger.Logger;
 import org.apache.druid.server.DruidNode;
 import org.easymock.EasyMock;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -129,6 +130,17 @@ public class K8sDruidNodeDiscoveryProviderTest
             false
         )
     );
+    EasyMock.expect(mockK8sApiClient.watchPods(
+            podInfo.getPodNamespace(), labelSelector, "v6", NodeRole.ROUTER)).andReturn(
+            new MockWatchResult(
+                    ImmutableList.of(
+                            new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndK8sMetadata("v7", testNode5, null, null)),
+                            new Watch.Response<>(WatchResult.MODIFIED, new DiscoveryDruidNodeAndK8sMetadata("v6", testNode3, DateTime.now().minusMinutes(1), DateTime.now()))
+                    ),
+                    false,
+                    false
+            )
+    );
     EasyMock.replay(mockK8sApiClient);
 
     K8sDruidNodeDiscoveryProvider discoveryProvider = new K8sDruidNodeDiscoveryProvider(
@@ -150,6 +162,8 @@ public class K8sDruidNodeDiscoveryProviderTest
             MockListener.Event.deleted(testNode1),
             MockListener.Event.added(testNode4),
             MockListener.Event.deleted(testNode2),
+            MockListener.Event.added(testNode5),
+            MockListener.Event.deleted(testNode3)
             MockListener.Event.added(testNode5),
             MockListener.Event.deleted(testNode3)
         )
