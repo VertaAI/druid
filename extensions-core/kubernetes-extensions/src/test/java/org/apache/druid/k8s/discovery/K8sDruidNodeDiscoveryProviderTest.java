@@ -163,7 +163,7 @@ public class K8sDruidNodeDiscoveryProviderTest
             MockListener.Event.added(testNode4),
             MockListener.Event.deleted(testNode2),
             MockListener.Event.added(testNode5),
-            MockListener.Event.deleted(testNode3)
+            MockListener.Event.deleted(testNode3),
             MockListener.Event.added(testNode5),
             MockListener.Event.deleted(testNode3)
         )
