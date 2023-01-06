@@ -269,12 +269,15 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               if (item != null && item.type != null && item.object != null) {
                 switch (item.type) {
                   case WatchResult.ADDED:
+                    LOGGER.debug("druid node added " + item.type + " - " + item.object.getNode());
                     baseNodeRoleWatcher.childAdded(item.object.getNode());
                     break;
                   case WatchResult.DELETED:
+                    LOGGER.debug("druid node deleted " + item.type + " - " + item.object.getNode());
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
                   case WatchResult.MODIFIED:
+                    LOGGER.debug("druid node modified " + item.type + " - " + item.object.getNode());
                     // forcibly overwrite the child node, it has been altered
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     baseNodeRoleWatcher.childAdded(item.object.getNode());
