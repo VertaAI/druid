@@ -135,8 +135,7 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo,
         discoveryConfig,
         mockK8sApiClient,
-        1,
-            1
+        1
     );
     discoveryProvider.start();
 
@@ -203,8 +202,7 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo,
         discoveryConfig,
         mockK8sApiClient,
-        1,
-            1
+        1
     );
     discoveryProvider.start();
 
@@ -278,8 +276,7 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo,
         discoveryConfig,
         mockK8sApiClient,
-        1,
-            1
+        1
     );
     discoveryProvider.start();
 

@@ -65,7 +65,6 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
   private final LifecycleLock lifecycleLock = new LifecycleLock();
 
   private final long watcherErrorRetryWaitMS;
-  private final long watcherMaxErrorLimit;
 
   @Inject
   public K8sDruidNodeDiscoveryProvider(
@@ -76,7 +75,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
   {
     // at some point, if needed, watcherErrorRetryWaitMS here can be made configurable and maybe some randomization
     // component as well.
-    this(podInfo, discoveryConfig, k8sApiClient, 10_000, 5);
+    this(podInfo, discoveryConfig, k8sApiClient, 10_000);
   }
 
   @VisibleForTesting
@@ -84,15 +83,13 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
       PodInfo podInfo,
       K8sDiscoveryConfig discoveryConfig,
       K8sApiClient k8sApiClient,
-      long watcherErrorRetryWaitMS,
-      long watcherMaxErrorLimit
+      long watcherErrorRetryWaitMS
   )
   {
     this.podInfo = podInfo;
     this.discoveryConfig = discoveryConfig;
     this.k8sApiClient = k8sApiClient;
     this.watcherErrorRetryWaitMS = watcherErrorRetryWaitMS;
-    this.watcherMaxErrorLimit = watcherMaxErrorLimit;
   }
 
   @Override
@@ -126,8 +123,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               podInfo,
               discoveryConfig,
               k8sApiClient,
-              watcherErrorRetryWaitMS,
-                  watcherMaxErrorLimit);
+              watcherErrorRetryWaitMS);
           if (startAfterCreation) {
             nodeRoleWatcher.start();
           }
@@ -198,7 +194,6 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
     private final BaseNodeRoleWatcher baseNodeRoleWatcher;
 
     private final long watcherErrorRetryWaitMS;
-    private final long watcherMaxErrorLimit;
 
     NodeRoleWatcher(
         ExecutorService listenerExecutor,
@@ -206,15 +201,13 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         PodInfo podInfo,
         K8sDiscoveryConfig discoveryConfig,
         K8sApiClient k8sApiClient,
-        long watcherErrorRetryWaitMS,
-        long watcherMaxErrorLimit)
+        long watcherErrorRetryWaitMS)
     {
       this.podInfo = podInfo;
       this.discoveryConfig = discoveryConfig;
       this.k8sApiClient = k8sApiClient;
 
       this.nodeRole = nodeRole;
-      this.watcherMaxErrorLimit = watcherMaxErrorLimit;
       this.baseNodeRoleWatcher = new BaseNodeRoleWatcher(listenerExecutor, nodeRole);
 
       this.watcherErrorRetryWaitMS = watcherErrorRetryWaitMS;
@@ -260,8 +253,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
     {
       String nextResourceVersion = resourceVersion;
 
-      AtomicLong errors = new AtomicLong(0);
-      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS) && errors.get() < watcherMaxErrorLimit) {
+      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS)) {
         try {
           WatchResult iter =
               k8sApiClient.watchPods(podInfo.getPodNamespace(), labelSelector, nextResourceVersion, nodeRole);
@@ -291,7 +283,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               } else {
                 // Try again by starting the watch from the beginning. This can happen if the
                 // watch goes bad.
-                LOGGER.debug("Received NULL item while watching node type [%s]. Restarting watch.", this.nodeRole);
+                LOGGER.trace("Received NULL item while watching node type [%s]. Restarting watch.", this.nodeRole);
                 return;
               }
             }
@@ -304,12 +296,11 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         catch (SocketTimeoutException ex) {
           // socket read timeout can happen normally due to k8s not having anything new to push leading to socket
           // read timeout, so no error log
-          errors.addAndGet(1L);
           sleep(watcherErrorRetryWaitMS);
         }
         catch (Throwable ex) {
+          // increment the error counter since this is not expected.
           LOGGER.error(ex, "Error while watching node type [%s]", this.nodeRole);
-          errors.addAndGet(1L);
           sleep(watcherErrorRetryWaitMS);
         }
       }
