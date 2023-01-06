@@ -230,8 +230,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         return;
       }
 
-      AtomicLong errors = new AtomicLong(0);
-      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS) && errors.get() < watcherMaxErrorLimit) {
+      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS)) {
         try {
           DiscoveryDruidNodeList list = k8sApiClient.listPods(podInfo.getPodNamespace(), labelSelector, nodeRole);
           baseNodeRoleWatcher.resetNodes(list.getDruidNodes());
@@ -249,7 +248,6 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         }
         catch (Throwable ex) {
           LOGGER.error(ex, "Expection while watching for NodeRole [%s].", nodeRole);
-          errors.addAndGet(1L);
           // Wait a little before trying again.
           sleep(watcherErrorRetryWaitMS);
         }
@@ -261,7 +259,9 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
     private void keepWatching(String namespace, String labelSelector, String resourceVersion)
     {
       String nextResourceVersion = resourceVersion;
-      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS)) {
+
+      AtomicLong errors = new AtomicLong(0);
+      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS) && errors.get() < watcherMaxErrorLimit) {
         try {
           WatchResult iter =
               k8sApiClient.watchPods(podInfo.getPodNamespace(), labelSelector, nextResourceVersion, nodeRole);
@@ -304,10 +304,12 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         catch (SocketTimeoutException ex) {
           // socket read timeout can happen normally due to k8s not having anything new to push leading to socket
           // read timeout, so no error log
+          errors.addAndGet(1L);
           sleep(watcherErrorRetryWaitMS);
         }
         catch (Throwable ex) {
           LOGGER.error(ex, "Error while watching node type [%s]", this.nodeRole);
+          errors.addAndGet(1L);
           sleep(watcherErrorRetryWaitMS);
         }
       }
