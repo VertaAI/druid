@@ -266,34 +266,45 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
           try {
             while (iter.hasNext()) {
               Watch.Response<DiscoveryDruidNodeAndResourceVersion> item = iter.next();
-              if (item != null && item.type != null && item.object != null) {
-                switch (item.type) {
-                  case WatchResult.ADDED:
-                    LOGGER.debug("druid node added " + item.type + " - " + item.object.getNode());
-                    baseNodeRoleWatcher.childAdded(item.object.getNode());
-                    break;
-                  case WatchResult.DELETED:
-                    LOGGER.debug("druid node deleted " + item.type + " - " + item.object.getNode());
-                    baseNodeRoleWatcher.childRemoved(item.object.getNode());
-                    break;
-                  case WatchResult.MODIFIED:
-                    LOGGER.debug("druid node modified " + item.type + " - " + item.object.getNode());
-                    // forcibly overwrite the child node, it has been altered
-                    baseNodeRoleWatcher.childRemoved(item.object.getNode());
-                    baseNodeRoleWatcher.childAdded(item.object.getNode());
-                    break;
-                  default:
-                }
-
-                // This should be updated after the action has been dealt with successfully
-                nextResourceVersion = item.object.getResourceVersion();
-
-              } else {
+              if (item == null) {
                 // Try again by starting the watch from the beginning. This can happen if the
                 // watch goes bad.
                 LOGGER.trace("Received NULL item while watching node type [%s]. Restarting watch.", this.nodeRole);
                 return;
               }
+              if (item.type == null) {
+                // Try again by starting the watch from the beginning. This can happen if the
+                // watch goes bad.
+                LOGGER.trace("Received NULL item type while watching node type [%s]. Restarting watch.", this.nodeRole);
+                return;
+              }
+              if (item.object == null) {
+                // Try again by starting the watch from the beginning. This can happen if the
+                // watch goes bad.
+                LOGGER.trace("Received NULL item object while watching node type [%s]. Restarting watch.", this.nodeRole);
+                return;
+              }
+              switch (item.type) {
+                case WatchResult.ADDED:
+                  LOGGER.debug("druid node added " + item.type + " - " + item.object.getNode());
+                  baseNodeRoleWatcher.childAdded(item.object.getNode());
+                  break;
+                case WatchResult.DELETED:
+                  LOGGER.debug("druid node deleted " + item.type + " - " + item.object.getNode());
+                  baseNodeRoleWatcher.childRemoved(item.object.getNode());
+                  break;
+                case WatchResult.MODIFIED:
+                  LOGGER.debug("druid node modified " + item.type + " - " + item.object.getNode());
+                  // forcibly overwrite the child node, it has been altered
+                  baseNodeRoleWatcher.childRemoved(item.object.getNode());
+                  baseNodeRoleWatcher.childAdded(item.object.getNode());
+                  break;
+                default:
+                  LOGGER.debug("druid node event of unknown type " + item.type);
+              }
+
+              // This should be updated after the action has been dealt with successfully
+              nextResourceVersion = item.object.getResourceVersion();
             }
           }
           finally {
@@ -307,7 +318,6 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
           sleep(watcherErrorRetryWaitMS);
         }
         catch (Throwable ex) {
-          // increment the error counter since this is not expected.
           LOGGER.error(ex, "Error while watching node type [%s]", this.nodeRole);
           sleep(watcherErrorRetryWaitMS);
         }

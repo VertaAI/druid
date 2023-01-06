@@ -147,7 +147,7 @@ public class DefaultK8sApiClient implements K8sApiClient
                   // cases -- likely due to a blip in the k8s watch. Handle that by
                   // passing the null upwards. The caller needs to know that the object
                   // can be null.
-                  LOGGER.debug("item of type [%s] was NULL or had NULL metadata when watching nodeRole [%s]", item.type, nodeRole);
+                  LOGGER.trace("item of type [%s] was NULL or had NULL metadata when watching nodeRole [%s]", item.type, nodeRole);
                 }
 
                 obj = new Watch.Response<DiscoveryDruidNodeAndResourceVersion>(
