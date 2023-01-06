@@ -267,17 +267,14 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
             while (iter.hasNext()) {
               Watch.Response<DiscoveryDruidNodeAndResourceVersion> item = iter.next();
               if (item != null && item.type != null && item.object != null) {
-                DiscoveryDruidNodeAndResourceVersion nodeAndResourceVersion = item.object;
-                if (nodeAndResourceVersion.getNode().getServices() != null && !nodeAndResourceVersion.getNode().getServices().isEmpty()) {
-                  switch (item.type) {
-                    case WatchResult.ADDED:
-                      baseNodeRoleWatcher.childAdded(item.object.getNode());
-                      break;
-                    case WatchResult.DELETED:
-                      baseNodeRoleWatcher.childRemoved(item.object.getNode());
-                      break;
-                    default:
-                  }
+                switch (item.type) {
+                  case WatchResult.ADDED:
+                    baseNodeRoleWatcher.childAdded(item.object.getNode());
+                    break;
+                  case WatchResult.DELETED:
+                    baseNodeRoleWatcher.childRemoved(item.object.getNode());
+                    break;
+                  default:
                 }
 
                 // This should be updated after the action has been dealt with successfully
