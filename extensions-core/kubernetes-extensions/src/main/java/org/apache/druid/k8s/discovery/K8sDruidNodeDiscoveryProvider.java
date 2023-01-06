@@ -274,6 +274,11 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
                   case WatchResult.DELETED:
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
+                  case WatchResult.MODIFIED:
+                    // forcibly overwrite the child node, it has been altered
+                    baseNodeRoleWatcher.childRemoved(item.object.getNode());
+                    baseNodeRoleWatcher.childAdded(item.object.getNode());
+                    break;
                   default:
                 }
 
