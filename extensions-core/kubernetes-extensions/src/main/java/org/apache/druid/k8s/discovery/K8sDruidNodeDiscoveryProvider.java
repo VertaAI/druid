@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 
@@ -64,6 +65,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
   private final LifecycleLock lifecycleLock = new LifecycleLock();
 
   private final long watcherErrorRetryWaitMS;
+  private final long watcherMaxErrorLimit;
 
   @Inject
   public K8sDruidNodeDiscoveryProvider(
@@ -74,7 +76,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
   {
     // at some point, if needed, watcherErrorRetryWaitMS here can be made configurable and maybe some randomization
     // component as well.
-    this(podInfo, discoveryConfig, k8sApiClient, 10_000);
+    this(podInfo, discoveryConfig, k8sApiClient, 10_000, 5);
   }
 
   @VisibleForTesting
@@ -82,13 +84,15 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
       PodInfo podInfo,
       K8sDiscoveryConfig discoveryConfig,
       K8sApiClient k8sApiClient,
-      long watcherErrorRetryWaitMS
+      long watcherErrorRetryWaitMS,
+      long watcherMaxErrorLimit
   )
   {
     this.podInfo = podInfo;
     this.discoveryConfig = discoveryConfig;
     this.k8sApiClient = k8sApiClient;
     this.watcherErrorRetryWaitMS = watcherErrorRetryWaitMS;
+    this.watcherMaxErrorLimit = watcherMaxErrorLimit;
   }
 
   @Override
@@ -122,8 +126,8 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               podInfo,
               discoveryConfig,
               k8sApiClient,
-              watcherErrorRetryWaitMS
-          );
+              watcherErrorRetryWaitMS,
+                  watcherMaxErrorLimit);
           if (startAfterCreation) {
             nodeRoleWatcher.start();
           }
@@ -194,6 +198,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
     private final BaseNodeRoleWatcher baseNodeRoleWatcher;
 
     private final long watcherErrorRetryWaitMS;
+    private final long watcherMaxErrorLimit;
 
     NodeRoleWatcher(
         ExecutorService listenerExecutor,
@@ -201,14 +206,15 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         PodInfo podInfo,
         K8sDiscoveryConfig discoveryConfig,
         K8sApiClient k8sApiClient,
-        long watcherErrorRetryWaitMS
-    )
+        long watcherErrorRetryWaitMS,
+        long watcherMaxErrorLimit)
     {
       this.podInfo = podInfo;
       this.discoveryConfig = discoveryConfig;
       this.k8sApiClient = k8sApiClient;
 
       this.nodeRole = nodeRole;
+      this.watcherMaxErrorLimit = watcherMaxErrorLimit;
       this.baseNodeRoleWatcher = new BaseNodeRoleWatcher(listenerExecutor, nodeRole);
 
       this.watcherErrorRetryWaitMS = watcherErrorRetryWaitMS;
@@ -224,7 +230,8 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         return;
       }
 
-      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS)) {
+      AtomicLong errors = new AtomicLong(0);
+      while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS) && errors.get() < watcherMaxErrorLimit) {
         try {
           DiscoveryDruidNodeList list = k8sApiClient.listPods(podInfo.getPodNamespace(), labelSelector, nodeRole);
           baseNodeRoleWatcher.resetNodes(list.getDruidNodes());
@@ -242,7 +249,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         }
         catch (Throwable ex) {
           LOGGER.error(ex, "Expection while watching for NodeRole [%s].", nodeRole);
-
+          errors.addAndGet(1L);
           // Wait a little before trying again.
           sleep(watcherErrorRetryWaitMS);
         }
