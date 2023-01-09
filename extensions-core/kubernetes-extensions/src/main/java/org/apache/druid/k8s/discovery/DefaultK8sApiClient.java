@@ -123,7 +123,7 @@ public class DefaultK8sApiClient implements K8sApiClient
 
       return new WatchResult()
       {
-        private Watch.Response<DiscoveryDruidNodeAndResourceVersion> obj;
+        private Watch.Response<DiscoveryDruidNodeAndK8sMetadata> obj;
 
         @Override
         public boolean hasNext() throws SocketTimeoutException
@@ -131,33 +131,36 @@ public class DefaultK8sApiClient implements K8sApiClient
           try {
             while (watch.hasNext()) {
               Watch.Response<V1Pod> item = watch.next();
-              if (item != null && item.type != null) {
-                DiscoveryDruidNodeAndResourceVersion result = null;
-                if (item.object != null && item.object.getMetadata() != null) {
-                  if (item.object.getMetadata().getAnnotations() != null) {
-                    result = new DiscoveryDruidNodeAndResourceVersion(
-                        item.object.getMetadata().getResourceVersion(),
-                        getDiscoveryDruidNodeFromPodDef(nodeRole, item.object)
-                    );
-                  } else {
-                    LOGGER.debug("item of type [%s] had NULL annotations when watching nodeRole [%s]", item.type, nodeRole);
-                  }
-                } else {
-                  // The item's object, or the metadata it contains, can be null in some
-                  // cases -- likely due to a blip in the k8s watch. Handle that by
-                  // passing the null upwards. The caller needs to know that the object
-                  // can be null.
-                  LOGGER.trace("item of type [%s] was NULL or had NULL metadata when watching nodeRole [%s]", item.type, nodeRole);
-                }
-
-                obj = new Watch.Response<DiscoveryDruidNodeAndResourceVersion>(
-                    item.type,
-                    result
-                );
-                return true;
-              } else {
-                LOGGER.error("WTH! item or item.type is NULL");
+              if (item == null) {
+                LOGGER.error("item is null for nodeRole [%s]", nodeRole);
+                continue;
               }
+              if (item.type == null) {
+                LOGGER.error("item type is null watching nodeRole [%s]", nodeRole);
+                continue;
+              }
+              DiscoveryDruidNodeAndK8sMetadata result = null;
+              if (item.object == null) {
+                LOGGER.debug("item object of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+              } else if (item.object.getMetadata() == null) {
+                LOGGER.debug("item object metadata of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+              } else if (item.object.getMetadata().getAnnotations() == null) {
+                LOGGER.debug("item object metadata annotations of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+              } else {
+                DiscoveryDruidNode discoveryNode = getDiscoveryDruidNodeFromPodDef(nodeRole, item.object);
+                LOGGER.debug("found discover druid node [%s]", discoveryNode);
+                result = new DiscoveryDruidNodeAndK8sMetadata(
+                        item.object.getMetadata().getResourceVersion(),
+                        discoveryNode,
+                        item.object.getMetadata().getCreationTimestamp(),
+                        item.object.getMetadata().getDeletionTimestamp());
+              }
+
+              obj = new Watch.Response<DiscoveryDruidNodeAndK8sMetadata>(
+                  item.type,
+                  result
+              );
+              return true;
             }
           }
           catch (RuntimeException ex) {
@@ -172,7 +175,7 @@ public class DefaultK8sApiClient implements K8sApiClient
         }
 
         @Override
-        public Watch.Response<DiscoveryDruidNodeAndResourceVersion> next()
+        public Watch.Response<DiscoveryDruidNodeAndK8sMetadata> next()
         {
           return obj;
         }

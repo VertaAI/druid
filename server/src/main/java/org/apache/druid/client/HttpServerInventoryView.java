@@ -380,12 +380,13 @@ public class HttpServerInventoryView implements ServerInventoryView, FilteredSer
     synchronized (servers) {
       DruidServerHolder holder = servers.get(server.getName());
       if (holder == null) {
-        log.info("Server[%s] appeared.", server.getName());
+        log.info(getClass().getName() + ".serverAdded(383): Server[%s] of type [%s] appeared for datasources [%s], current size [%d], max size [%d], total segments [%d], tier [%s]",
+                server.getName(), server.getType(), server.getDataSources(), server.getCurrSize(), server.getMaxSize(), server.getTotalSegments(), server.getTier());
         holder = new DruidServerHolder(server);
         servers.put(server.getName(), holder);
         holder.start();
       } else {
-        log.info("Server[%s] already exists.", server.getName());
+        log.info("Server[%s] of type [%s] already exists.", server.getName(), server.getType());
       }
     }
   }
@@ -395,11 +396,11 @@ public class HttpServerInventoryView implements ServerInventoryView, FilteredSer
     synchronized (servers) {
       DruidServerHolder holder = servers.remove(server.getName());
       if (holder != null) {
-        log.info("Server[%s] disappeared.", server.getName());
+        log.info("Server[%s] of type [%s] disappeared.", server.getName(), server.getType());
         holder.stop();
         runServerCallbacks(holder.druidServer);
       } else {
-        log.info("Server[%s] did not exist. Removal notification ignored.", server.getName());
+        log.info("Server[%s] of type [%s] did not exist. Removal notification ignored.", server.getName(), server.getType());
       }
     }
   }

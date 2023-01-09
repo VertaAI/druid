@@ -111,8 +111,8 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo.getPodNamespace(), labelSelector, "v2", NodeRole.ROUTER)).andReturn(
         new MockWatchResult(
             ImmutableList.of(
-                  new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndResourceVersion("v3", testNode4)),
-                  new Watch.Response<>(WatchResult.DELETED, new DiscoveryDruidNodeAndResourceVersion("v4", testNode2))
+                  new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndK8sMetadata("v3", testNode4, null, null)),
+                  new Watch.Response<>(WatchResult.DELETED, new DiscoveryDruidNodeAndK8sMetadata("v4", testNode2, null, null))
               ),
             false,
             true
@@ -122,8 +122,8 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo.getPodNamespace(), labelSelector, "v4", NodeRole.ROUTER)).andReturn(
         new MockWatchResult(
             ImmutableList.of(
-                new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndResourceVersion("v5", testNode5)),
-                new Watch.Response<>(WatchResult.DELETED, new DiscoveryDruidNodeAndResourceVersion("v6", testNode3))
+                new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndK8sMetadata("v5", testNode5, null, null)),
+                new Watch.Response<>(WatchResult.DELETED, new DiscoveryDruidNodeAndK8sMetadata("v6", testNode3, null, null))
             ),
             false,
             false
@@ -240,7 +240,7 @@ public class K8sDruidNodeDiscoveryProviderTest
             )
         )
     );
-    List<Watch.Response<DiscoveryDruidNodeAndResourceVersion>> nullList = new ArrayList<Watch.Response<DiscoveryDruidNodeAndResourceVersion>>();
+    List<Watch.Response<DiscoveryDruidNodeAndK8sMetadata>> nullList = new ArrayList<Watch.Response<DiscoveryDruidNodeAndK8sMetadata>>();
     nullList.add(null);
     EasyMock.expect(mockK8sApiClient.watchPods(
         podInfo.getPodNamespace(), labelSelector, "v1", NodeRole.ROUTER)).andReturn(
@@ -254,7 +254,7 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo.getPodNamespace(), labelSelector, "v1", NodeRole.ROUTER)).andReturn(
         new MockWatchResult(
             ImmutableList.of(
-                  new Watch.Response<>(null, new DiscoveryDruidNodeAndResourceVersion("v2", testNode4))
+                  new Watch.Response<>(null, new DiscoveryDruidNodeAndK8sMetadata("v2", testNode4, null, null))
               ),
             false,
             false
@@ -264,7 +264,7 @@ public class K8sDruidNodeDiscoveryProviderTest
         podInfo.getPodNamespace(), labelSelector, "v2", NodeRole.ROUTER)).andReturn(
         new MockWatchResult(
             ImmutableList.of(
-                  new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndResourceVersion("v2", testNode4))
+                  new Watch.Response<>(WatchResult.ADDED, new DiscoveryDruidNodeAndK8sMetadata("v2", testNode4, null, null))
               ),
             false,
             false
@@ -417,14 +417,14 @@ public class K8sDruidNodeDiscoveryProviderTest
 
   private static class MockWatchResult implements WatchResult
   {
-    private List<Watch.Response<DiscoveryDruidNodeAndResourceVersion>> results;
+    private List<Watch.Response<DiscoveryDruidNodeAndK8sMetadata>> results;
 
     private volatile boolean timeoutOnStart;
     private volatile boolean timeooutOnEmptyResults;
     private volatile boolean closeCalled = false;
 
     public MockWatchResult(
-        List<Watch.Response<DiscoveryDruidNodeAndResourceVersion>> results,
+        List<Watch.Response<DiscoveryDruidNodeAndK8sMetadata>> results,
         boolean timeoutOnStart,
         boolean timeooutOnEmptyResults
     )
@@ -459,7 +459,7 @@ public class K8sDruidNodeDiscoveryProviderTest
     }
 
     @Override
-    public Watch.Response<DiscoveryDruidNodeAndResourceVersion> next()
+    public Watch.Response<DiscoveryDruidNodeAndK8sMetadata> next()
     {
       return results.remove(0);
     }

@@ -31,7 +31,7 @@ public interface WatchResult
 
   boolean hasNext() throws SocketTimeoutException;
 
-  Watch.Response<DiscoveryDruidNodeAndResourceVersion> next();
+  Watch.Response<DiscoveryDruidNodeAndK8sMetadata> next();
 
   void close();
 }
