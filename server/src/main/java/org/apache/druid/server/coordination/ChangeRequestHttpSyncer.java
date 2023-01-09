@@ -116,7 +116,7 @@ public class ChangeRequestHttpSyncer<T>
     this.serverUnstabilityTimeout = serverUnstabilityTimeout;
     this.serverHttpTimeout = serverTimeoutMS + HTTP_TIMEOUT_EXTRA_MS;
     this.listener = listener;
-    this.logIdentity = StringUtils.format("%s_%d", baseServerURL, System.currentTimeMillis());
+    this.logIdentity = StringUtils.format("%s%s_%d", baseServerURL, baseRequestPath, System.currentTimeMillis());
   }
 
   public void start()
