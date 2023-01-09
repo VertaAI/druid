@@ -285,15 +285,15 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               }
               switch (item.type) {
                 case WatchResult.ADDED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(288): druid node added " + item.type + " - " + item.object);
+                  LOGGER.debug(getClass().getName() + ".keepWatching(288): druid node " + item.type + " - " + item.object);
                   baseNodeRoleWatcher.childAdded(item.object.getNode());
                   break;
                 case WatchResult.DELETED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(292): druid node deleted " + item.type + " - " + item.object);
+                  LOGGER.debug(getClass().getName() + ".keepWatching(292): druid node " + item.type + " - " + item.object);
                   baseNodeRoleWatcher.childRemoved(item.object.getNode());
                   break;
                 case WatchResult.MODIFIED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(296): druid node modified " + item.type + " - " + item.object);
+                  LOGGER.debug(getClass().getName() + ".keepWatching(296): druid node " + item.type + " - " + item.object);
                   // forcibly overwrite the child node, it has been altered
 //                  baseNodeRoleWatcher.childRemoved(item.object.getNode());
 //                  baseNodeRoleWatcher.childAdded(item.object.getNode());
