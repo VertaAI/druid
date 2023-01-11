@@ -270,9 +270,17 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               if (item != null && item.type != null && item.object != null) {
                 switch (item.type) {
                   case WatchResult.ADDED:
+                    if (item.object.getNode().getServices() == null || item.object.getNode().getServices().isEmpty()) {
+                      LOGGER.warn("no services found on [%s] druid [%s] node [%s], skipping", item.type, item.object.getNode().getNodeRole(), item.object.getNode().getDruidNode().getHostAndPort());
+                      break;
+                    }
                     baseNodeRoleWatcher.childAdded(item.object.getNode());
                     break;
                   case WatchResult.DELETED:
+                    if (item.object.getNode().getServices() == null || item.object.getNode().getServices().isEmpty()) {
+                      LOGGER.warn("no services found on [%s] druid [%s] node [%s], skipping", item.type, item.object.getNode().getNodeRole(), item.object.getNode().getDruidNode().getHostAndPort());
+                      break;
+                    }
                     baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
                   default:
