@@ -132,23 +132,23 @@ public class DefaultK8sApiClient implements K8sApiClient
             while (watch.hasNext()) {
               Watch.Response<V1Pod> item = watch.next();
               if (item == null) {
-                LOGGER.error("item is null for nodeRole [%s]", nodeRole);
+                LOGGER.trace("item is null for nodeRole [%s]", nodeRole);
                 continue;
               }
               if (item.type == null) {
-                LOGGER.error("item type is null watching nodeRole [%s]", nodeRole);
+                LOGGER.trace("item type is null watching nodeRole [%s]", nodeRole);
                 continue;
               }
               DiscoveryDruidNodeAndK8sMetadata result = null;
               if (item.object == null) {
-                LOGGER.debug("item object of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+                LOGGER.trace("item object of type [%s] is null watching nodeRole[%s] - status [%s]", item.type, nodeRole, item.status);
               } else if (item.object.getMetadata() == null) {
-                LOGGER.debug("item object metadata of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+                LOGGER.trace("item object metadata of type [%s] is null watching nodeRole[%s] - status [%s]", item.type, nodeRole, item.status);
               } else if (item.object.getMetadata().getAnnotations() == null) {
-                LOGGER.debug("item object metadata annotations of type [%s] is null watching nodeRole[%s]", item.type, nodeRole);
+                LOGGER.trace("item object metadata annotations of type [%s] is null watching nodeRole[%s] - status [%s]", item.type, nodeRole, item.status);
               } else {
                 DiscoveryDruidNode discoveryNode = getDiscoveryDruidNodeFromPodDef(nodeRole, item.object);
-                LOGGER.debug("found discover druid node [%s]", discoveryNode);
+                LOGGER.trace("found discovery druid node [%s]", discoveryNode);
                 result = new DiscoveryDruidNodeAndK8sMetadata(
                         item.object.getMetadata().getResourceVersion(),
                         discoveryNode,

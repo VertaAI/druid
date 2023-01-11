@@ -202,6 +202,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         K8sApiClient k8sApiClient,
         long watcherErrorRetryWaitMS)
     {
+      LOGGER.debug("%s creating watcher for node role [%s]", new Throwable().getStackTrace()[0], nodeRole);
       this.podInfo = podInfo;
       this.discoveryConfig = discoveryConfig;
       this.k8sApiClient = k8sApiClient;
@@ -221,6 +222,8 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
         LOGGER.error("Lifecycle not started, Exited Watch for NodeRole [%s].", nodeRole);
         return;
       }
+
+      LOGGER.debug("%s starting watch for node role [%s]", new Throwable().getStackTrace()[0], nodeRole);
 
       while (lifecycleLock.awaitStarted(1, TimeUnit.MILLISECONDS)) {
         try {
@@ -285,21 +288,22 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
               }
               switch (item.type) {
                 case WatchResult.ADDED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(288): druid node " + item.type + " - " + item.object);
+                  LOGGER.debug("%s druid node [%s] - [%s]", new Throwable().getStackTrace()[0], item.type, item.object.getNode());
                   baseNodeRoleWatcher.childAdded(item.object.getNode());
                   break;
                 case WatchResult.DELETED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(292): druid node " + item.type + " - " + item.object);
+                  LOGGER.debug("%s druid node [%s] - [%s]", new Throwable().getStackTrace()[0], item.type, item.object.getNode());
+                  if (item.object.getNode().getServices() == null || item.object.getNode().getServices().isEmpty()) {
+                    LOGGER.warn("%s no services found on druid [%s] node [%s], skipping", new Throwable().getStackTrace()[0], item.type, item.object.getNode());
+                    break;
+                  }
                   baseNodeRoleWatcher.childRemoved(item.object.getNode());
                   break;
                 case WatchResult.MODIFIED:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(296): druid node " + item.type + " - " + item.object);
-                  // forcibly overwrite the child node, it has been altered
-//                  baseNodeRoleWatcher.childRemoved(item.object.getNode());
-//                  baseNodeRoleWatcher.childAdded(item.object.getNode());
+                  LOGGER.trace("%s druid node [%s] - [%s]", new Throwable().getStackTrace()[0], item.type, item.object.getNode());
                   break;
                 default:
-                  LOGGER.debug(getClass().getName() + ".keepWatching(302): druid node event of unknown type " + item.type + " - " + item.object);
+                  LOGGER.warn("%s druid node event of unknown type [%s] - [%s]", new Throwable().getStackTrace()[0], item.type, item.object.getNode());
               }
 
               // This should be updated after the action has been dealt with successfully
@@ -341,7 +345,7 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
 
       try {
         LOGGER.info("Starting NodeRoleWatcher for [%s]...", nodeRole);
-        this.watchExecutor = Execs.singleThreaded(this.getClass().getName() + nodeRole.getJsonName());
+        this.watchExecutor = Execs.singleThreaded(this.getClass().getName() + "-" + nodeRole.getJsonName());
         watchExecutor.submit(this::watch);
         lifecycleLock.started();
         LOGGER.info("Started NodeRoleWatcher for [%s].", nodeRole);
@@ -361,7 +365,9 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
       try {
         LOGGER.info("Stopping NodeRoleWatcher for [%s]...", nodeRole);
         // STOP_MARKER cannot throw exceptions on close(), so this is OK.
-        CloseableUtils.closeAndSuppressExceptions(STOP_MARKER, e -> {});
+        CloseableUtils.closeAndSuppressExceptions(STOP_MARKER, e -> {
+          LOGGER.warn("%s - error closing watcher for [%s] - [%s]", new Throwable().getStackTrace()[0], nodeRole, e);
+        });
         watchExecutor.shutdownNow();
 
         if (!watchExecutor.awaitTermination(15, TimeUnit.SECONDS)) {

@@ -105,7 +105,7 @@ public class K8sDruidNodeAnnouncer implements DruidNodeAnnouncer
 
       // Creating patch string outside of retry block to not retry json serialization failures
       String jsonPatchStr = jsonMapper.writeValueAsString(patches);
-      LOGGER.info("Json Patch For Node Announcement: [%s]", jsonPatchStr);
+      LOGGER.trace("Json Patch For Node Announcement: [%s]", jsonPatchStr);
 
       RetryUtils.retry(
           () -> {
