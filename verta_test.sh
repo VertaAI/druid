@@ -23,7 +23,7 @@ if [ "$BRANCH_NAME" == "verta/main" ]; then
     export PROJECT_VERSION=${PROJECT_VERSION/%-SNAPSHOT/-$COMMIT_INFO}
 fi
 
-export MAVEN_PARAMS='-Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true -Denforcer.skip -Dforbiddenapis.skip=true -Dcheckstyle.skip=true -Danimal.sniffer.skip=true -Djacoco.skip=true -Dweb.console.skip=true'
+export MAVEN_PARAMS='-Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dforbiddenapis.skip=true -Danimal.sniffer.skip=true -Dweb.console.skip=true'
 mvn -B versions:set -DnewVersion=$PROJECT_VERSION > /dev/null
 mvn -B install $MAVEN_PARAMS || {
     mvn -B versions:set -DnewVersion=$PROJECT_REVISION > /dev/null
