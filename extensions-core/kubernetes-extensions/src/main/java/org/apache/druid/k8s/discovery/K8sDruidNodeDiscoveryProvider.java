@@ -290,9 +290,9 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
                           item.object.getNode().getNodeRole(),
                           item.object.getNode().getDruidNode().getHostAndPort()
                       );
-                      break;
+                    } else {
+                      baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     }
-                    baseNodeRoleWatcher.childRemoved(item.object.getNode());
                     break;
                   default:
                     // Ignore all other types as only pod ADD and DELETE matter.
