@@ -278,9 +278,9 @@ public class K8sDruidNodeDiscoveryProvider extends DruidNodeDiscoveryProvider
                           item.object.getNode().getNodeRole(),
                           item.object.getNode().getDruidNode().getHostAndPort()
                       );
-                      break;
+                    } else {
+                      baseNodeRoleWatcher.childAdded(item.object.getNode());
                     }
-                    baseNodeRoleWatcher.childAdded(item.object.getNode());
                     break;
                   case WatchResult.DELETED:
                     if (item.object.getNode().getServices() == null || item.object.getNode().getServices().isEmpty()) {
