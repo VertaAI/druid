@@ -236,7 +236,7 @@ public class SQLServerConnector extends SQLMetadataConnector
             handle.createStatement(StringUtils.format(
                 "MERGE INTO %1$s WITH (UPDLOCK, HOLDLOCK) as target"
                     + " USING "
-                    + " (:key, :value) as source (%2$s, %3$s)"
+                    + " values((:key, :value)) as source (%2$s, %3$s)"
                     + " ON"
                     + " (target.%2$s = source.%2$s)"
                     + " WHEN MATCHED THEN UPDATE SET %3$s = :value"
