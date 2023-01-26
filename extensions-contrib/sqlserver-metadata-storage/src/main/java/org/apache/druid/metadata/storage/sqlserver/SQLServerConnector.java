@@ -240,7 +240,7 @@ public class SQLServerConnector extends SQLMetadataConnector
                     + " ON"
                     + " (target.%2$s = source.%2$s)"
                     + " WHEN MATCHED THEN UPDATE SET %3$s = :value"
-                    + " WHEN NOT MATCHED THEN INSERT (%2$s, %3$s) VALUES (:key, :value)",
+                    + " WHEN NOT MATCHED THEN INSERT (%2$s, %3$s) VALUES (:key, :value);",
                 tableName,
                 keyColumn,
                 valueColumn))
