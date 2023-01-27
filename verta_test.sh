@@ -25,7 +25,7 @@ fi
 
 export MAVEN_PARAMS='-Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dcheckstyle.skip=true -Dpmd.skip=true -Dforbiddenapis.skip=true -Danimal.sniffer.skip=true -Dweb.console.skip=true'
 mvn -B versions:set -DnewVersion=$PROJECT_VERSION > /dev/null
-mvn -B install $MAVEN_PARAMS || {
+mvn -B -T 1C install $MAVEN_PARAMS || {
     mvn -B versions:set -DnewVersion=$PROJECT_REVISION > /dev/null
     exit 1
 }
