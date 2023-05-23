@@ -3,7 +3,9 @@
 set -eo pipefail
 
 export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
-export BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
+if [ -z "$BRANCH_NAME" ]; then
+    BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
+fi
 export VERSION_SUFFIX=$(echo $BRANCH_NAME | sed 's,/,-,g' | tr '[:upper:]' '[:lower:]')
 export PROJECT_REVISION=$(mvn help:evaluate -Dexpression=revision -q -DforceStdout)
 export POM=$1
@@ -37,7 +39,12 @@ if [ "$BRANCH_NAME" == "verta/main" ]; then
     export PROJECT_VERSION=${PROJECT_VERSION/%-SNAPSHOT/-$COMMIT_INFO}
 fi
 
-export MAVEN_PARAMS="$PARALLELISM -Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true -Denforcer.skip -Dforbiddenapis.skip=true -Dcheckstyle.skip=true -Danimal.sniffer.skip=true -Djacoco.skip=true -DskipTests -f $POM"
+LOCAL_MAVEN_SETTINGS_PARAM=""
+if [ -f "$LOCAL_MAVEN_SETTINGS" ]; then
+  LOCAL_MAVEN_SETTINGS_PARAM="-s $LOCAL_MAVEN_SETTINGS"
+fi
+
+export MAVEN_PARAMS="$PARALLELISM $LOCAL_MAVEN_SETTINGS_PARAM -Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true -Denforcer.skip -Dforbiddenapis.skip=true -Dcheckstyle.skip=true -Danimal.sniffer.skip=true -Djacoco.skip=true -DskipTests -f $POM"
 mvn -B versions:set -DnewVersion=$PROJECT_VERSION > /dev/null
 mvn -B source:jar deploy $MAVEN_PARAMS || {
     mvn -B versions:set -DnewVersion=$PROJECT_REVISION > /dev/null
