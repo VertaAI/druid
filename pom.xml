@@ -38,12 +38,12 @@
 
     <distributionManagement>
         <repository>
-            <id>github-verta-druid</id>
+            <id>github-verta</id>
             <name>GitHub VertaAI Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/VertaAI/druid</url>
         </repository>
         <snapshotRepository>
-            <id>github-verta-druid</id>
+            <id>github-verta</id>
             <name>GitHub VertaAI Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/VertaAI/druid</url>
         </snapshotRepository>
@@ -228,7 +228,7 @@
         </repository>
 
         <repository>
-            <id>github-verta-druid</id>
+            <id>github-verta</id>
             <url>https://maven.pkg.github.com/VertaAI/druid</url>
             <snapshots>
                 <enabled>true</enabled>

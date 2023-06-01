@@ -35,16 +35,15 @@ export PROJECT_VERSION=${PROJECT_REVISION/%-SNAPSHOT/-${VERSION_SUFFIX}-SNAPSHOT
 
 # When building verta main replace -SNAPSHOT with commit info
 if [ "$BRANCH_NAME" == "verta/main" ]; then
-    COMMIT_INFO="$(TZ=UTC git show -s --format=%cd--%h --date='format-local:%Y-%m-%dT%H-%M-%S' --abbrev=7)"
+    COMMIT_INFO="$(TZ=UTC git show -s --format=%cd--%h --date='format-local:%Y-%m-%dT%H-%M-%S' --abbrev=7 ${SHA:-HEAD})"
     export PROJECT_VERSION=${PROJECT_VERSION/%-SNAPSHOT/-$COMMIT_INFO}
 fi
 
-LOCAL_MAVEN_SETTINGS_PARAM=""
-if [ -f "$LOCAL_MAVEN_SETTINGS" ]; then
-  LOCAL_MAVEN_SETTINGS_PARAM="-s $LOCAL_MAVEN_SETTINGS"
-fi
+# report project version to github workflow
+GITHUB_OUTPUT=${GITHUB_OUTPUT:-/dev/null}
+echo "project_version=$PROJECT_VERSION" >> $GITHUB_OUTPUT
 
-export MAVEN_PARAMS="$PARALLELISM $LOCAL_MAVEN_SETTINGS_PARAM -Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true -Denforcer.skip -Dforbiddenapis.skip=true -Dcheckstyle.skip=true -Danimal.sniffer.skip=true -Djacoco.skip=true -DskipTests -f $POM"
+export MAVEN_PARAMS="$PARALLELISM -Pdist-hadoop3,hadoop3,bundle-contrib-exts -Dpmd.skip=true -Denforcer.skip -Dforbiddenapis.skip=true -Dcheckstyle.skip=true -Danimal.sniffer.skip=true -Djacoco.skip=true -DskipTests -f $POM"
 mvn -B versions:set -DnewVersion=$PROJECT_VERSION > /dev/null
 mvn -B source:jar deploy $MAVEN_PARAMS || {
     mvn -B versions:set -DnewVersion=$PROJECT_REVISION > /dev/null
